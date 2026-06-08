@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Mis Posts{% endblock %}</title>
+  <title>{% block title %}Mis Notas{% endblock %}</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -46,7 +46,7 @@
   <nav class="fixed top-0 left-0 right-0 z-50 border-b border-gray-800 bg-[#1a1a1a]/95 backdrop-blur-sm">
     <div class="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
       <a href="{% url 'dashboard' %}" class="font-semibold text-gray-100 tracking-tight text-sm">
-        Mis Posts
+        Mis Notas
       </a>
       <div class="flex items-center gap-1">
         <a href="{% url 'dashboard' %}"
@@ -76,6 +76,10 @@
   <main class="pt-14 min-h-full">
     {% block content %}{% endblock %}
   </main>
+
+  <footer class="border-t border-gray-800/50 mt-8 py-5">
+    <p class="text-center text-xs text-gray-700">Notas Wels &mdash; 2026</p>
+  </footer>
 
 </body>
 </html>

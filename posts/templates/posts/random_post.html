@@ -21,7 +21,7 @@
     <!-- Quote marks decorativos -->
     <div class="text-[#cc785c]/30 text-6xl font-serif leading-none mb-2 select-none">"</div>
 
-    <p class="text-gray-100 text-lg sm:text-xl leading-relaxed mb-6">{{ post.text }}</p>
+    <div class="text-gray-100 text-lg sm:text-xl leading-relaxed mb-6">{{ post.text|linebreaksbr }}</div>
 
     <div class="border-t border-gray-700/40 pt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
       <div class="flex flex-wrap items-center gap-2">

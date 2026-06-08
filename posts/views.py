@@ -6,15 +6,34 @@ from .models import Post, Tag
 from .forms import PostForm
 
 
+MOTIVATIONAL_NOTES = [
+    "Lo que guardas hoy se convierte en sabiduría mañana.",
+    "Cada nota es una semilla. Sigue plantando.",
+    "Leer es respirar. Guardar es recordar.",
+    "Las mejores ideas merecen un lugar seguro.",
+    "Vuelve a leer lo que alguna vez te inspiró.",
+    "Tu colección de ideas dice mucho de quién eres.",
+    "Un buen texto leído dos veces vale el doble.",
+    "Guardar es un acto de intención.",
+    "Las palabras de otros pueden iluminar tu propio camino.",
+    "Construyes quién eres con lo que decides leer y recordar.",
+    "Pequeñas notas, grandes transformaciones.",
+    "Lo que te mueve merece no ser olvidado.",
+    "Cada autor que guardas es una conversación que continúa.",
+    "Tus notas son un mapa de lo que te importa.",
+    "El conocimiento guardado es el que realmente se queda.",
+]
+
 def dashboard(request):
-    recent_posts = Post.objects.prefetch_related('tags').all()[:5]
-    total = Post.objects.count()
-    context = {
-        'recent_posts': recent_posts,
-        'total': total,
-        'form': PostForm(),
-    }
-    return render(request, 'posts/dashboard.html', context)
+    if request.method == 'POST':
+        form = PostForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('dashboard')
+    else:
+        form = PostForm()
+    note = random.choice(MOTIVATIONAL_NOTES)
+    return render(request, 'posts/dashboard.html', {'motivational_note': note, 'form': form})
 
 
 def add_post(request):

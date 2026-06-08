@@ -1,91 +1,163 @@
 {% extends 'posts/base.html' %}
-{% block title %}Inicio — Mis Posts{% endblock %}
+{% block title %}Mis Notas{% endblock %}
 
 {% block content %}
-<div class="max-w-3xl mx-auto px-4 py-8">
+<div class="max-w-xl mx-auto px-4 py-16 flex flex-col items-center">
 
-  <!-- Stats -->
-  <div class="mb-8 flex items-center gap-4">
-    <div class="bg-gray-800/50 border border-gray-700/50 rounded-xl px-5 py-3 flex items-center gap-3">
-      <span class="text-2xl font-bold text-[#cc785c]">{{ total }}</span>
-      <span class="text-sm text-gray-400">post{% if total != 1 %}s{% endif %} guardado{% if total != 1 %}s{% endif %}</span>
+  <!-- Frase motivacional -->
+  <p class="text-xs text-gray-600 italic text-center mb-10 px-4">{{ motivational_note }}</p>
+
+  <!-- Formulario inline -->
+  <div class="w-full" id="noteWidget">
+
+    <!-- Línea de entrada (estado colapsado) -->
+    <div id="noteTrigger"
+         class="w-full flex items-center gap-3 bg-gray-800/40 hover:bg-gray-800/60 border border-gray-700/50
+                hover:border-gray-600 rounded-2xl px-5 py-4 cursor-text transition-all"
+         onclick="openForm()">
+      <svg class="w-4 h-4 text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"/>
+      </svg>
+      <span class="text-sm text-gray-600 select-none">Agregar nota...</span>
     </div>
+
+    <!-- Formulario expandido (oculto por defecto) -->
+    <form id="noteForm" method="post" class="hidden w-full">
+      {% csrf_token %}
+
+      <!-- Texto -->
+      <div class="bg-gray-800/40 border border-gray-700/50 rounded-2xl overflow-hidden mb-3 focus-within:border-gray-600 transition-colors">
+        <div class="px-5 pt-4 pb-2">
+          <textarea name="text" id="noteText" rows="5"
+                    placeholder="Pega aquí el texto de la nota..."
+                    class="w-full bg-transparent outline-none resize-none text-gray-100 placeholder-gray-600 text-sm leading-relaxed"
+                    required>{{ form.text.value|default:'' }}</textarea>
+        </div>
+        <div class="border-t border-gray-700/40 px-5 py-2 flex justify-end">
+          <span class="text-xs text-gray-700" id="charCount">0 caracteres</span>
+        </div>
+      </div>
+
+      <!-- Autor + Fuente -->
+      <div class="grid grid-cols-2 gap-3 mb-3">
+        <div class="bg-gray-800/40 border border-gray-700/50 rounded-xl px-4 py-3 focus-within:border-gray-600 transition-colors">
+          <label class="block text-xs text-gray-600 mb-1">Autor</label>
+          <input type="text" name="author" placeholder="Nombre del autor"
+                 value="{{ form.author.value|default:'' }}"
+                 class="w-full bg-transparent outline-none text-sm text-gray-300 placeholder-gray-600" required>
+        </div>
+        <div class="bg-gray-800/40 border border-gray-700/50 rounded-xl px-4 py-3 focus-within:border-gray-600 transition-colors">
+          <label class="block text-xs text-gray-600 mb-1">Fuente</label>
+          <select name="source" class="w-full bg-transparent outline-none text-sm text-gray-300" id="sourceSelect">
+            {% for value, label in form.fields.source.choices %}
+            <option value="{{ value }}" {% if form.source.value == value %}selected{% endif %}
+                    class="bg-gray-800">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <!-- Fuente personalizada (solo si "otro") -->
+      <div id="customSourceWrap" class="mb-3 hidden">
+        <div class="bg-gray-800/40 border border-gray-700/50 rounded-xl px-4 py-3 focus-within:border-gray-600 transition-colors">
+          <label class="block text-xs text-gray-600 mb-1">Especificar fuente</label>
+          <input type="text" name="source_custom" placeholder="Escribe la fuente"
+                 value="{{ form.source_custom.value|default:'' }}"
+                 class="w-full bg-transparent outline-none text-sm text-gray-300 placeholder-gray-600">
+        </div>
+      </div>
+
+      <!-- Enlace + Tags -->
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div class="bg-gray-800/40 border border-gray-700/50 rounded-xl px-4 py-3 focus-within:border-gray-600 transition-colors">
+          <label class="block text-xs text-gray-600 mb-1">Enlace</label>
+          <input type="url" name="link" placeholder="https://..."
+                 value="{{ form.link.value|default:'' }}"
+                 class="w-full bg-transparent outline-none text-sm text-gray-300 placeholder-gray-600">
+        </div>
+        <div class="bg-gray-800/40 border border-gray-700/50 rounded-xl px-4 py-3 focus-within:border-gray-600 transition-colors">
+          <label class="block text-xs text-gray-600 mb-1">Etiquetas</label>
+          <input type="text" name="tags_input" placeholder="motivación, negocios..."
+                 value="{{ form.tags_input.value|default:'' }}"
+                 class="w-full bg-transparent outline-none text-sm text-gray-300 placeholder-gray-600">
+        </div>
+      </div>
+
+      <!-- Errores -->
+      {% if form.errors %}
+      <div class="mb-3 bg-red-900/20 border border-red-700/40 rounded-xl px-4 py-2">
+        {% for field, errors in form.errors.items %}{% for e in errors %}
+        <p class="text-xs text-red-400">{{ e }}</p>
+        {% endfor %}{% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Acciones -->
+      <div class="flex items-center justify-between">
+        <button type="button" onclick="closeForm()"
+                class="text-xs text-gray-600 hover:text-gray-400 transition-colors">
+          Cancelar
+        </button>
+        <button type="submit"
+                class="bg-[#cc785c] hover:bg-[#b8694f] text-white text-xs font-medium px-5 py-2 rounded-xl transition-colors">
+          Guardar nota
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Links secundarios -->
+  <div class="flex items-center gap-6 mt-10">
     <a href="{% url 'random_post' %}"
-       class="flex items-center gap-2 bg-[#cc785c] hover:bg-[#b8694f] text-white text-sm font-medium px-5 py-3 rounded-xl transition-colors">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+       class="text-xs text-gray-600 hover:text-gray-300 transition-colors flex items-center gap-1.5">
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
       </svg>
-      Post aleatorio
+      Nota aleatoria
     </a>
+    <span class="text-gray-800">·</span>
     <a href="{% url 'search' %}"
-       class="flex items-center gap-2 border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-gray-100 text-sm font-medium px-5 py-3 rounded-xl transition-colors">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+       class="text-xs text-gray-600 hover:text-gray-300 transition-colors flex items-center gap-1.5">
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
       </svg>
-      Buscar
+      Buscar notas
     </a>
   </div>
-
-  <!-- Add Post CTA -->
-  <a href="{% url 'add_post' %}"
-     class="block w-full mb-8 bg-gray-800/40 hover:bg-gray-800/70 border border-gray-700/50 hover:border-gray-600
-            rounded-2xl px-5 py-4 transition-all group">
-    <div class="flex items-center gap-3 text-gray-500 group-hover:text-gray-400">
-      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-              d="M12 4v16m8-8H4"/>
-      </svg>
-      <span class="text-sm">Guardar un nuevo post...</span>
-    </div>
-  </a>
-
-  <!-- Recent posts -->
-  {% if recent_posts %}
-  <div>
-    <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-4">Recientes</h2>
-    <div class="space-y-3">
-      {% for post in recent_posts %}
-      <div class="bg-gray-800/30 border border-gray-700/40 rounded-2xl p-5 hover:border-gray-600/60 transition-colors">
-        <p class="text-gray-200 text-sm leading-relaxed line-clamp-3 mb-3">{{ post.text }}</p>
-        <div class="flex flex-wrap items-center gap-2">
-          <span class="text-xs font-medium text-gray-400">— {{ post.author }}</span>
-          <span class="source-badge">{{ post.get_source_display_name }}</span>
-          {% for tag in post.tags.all %}
-          <span class="tag-badge">#{{ tag.name }}</span>
-          {% endfor %}
-          {% if post.link %}
-          <a href="{{ post.link }}" target="_blank" rel="noopener"
-             class="ml-auto text-gray-600 hover:text-gray-400 transition-colors flex-shrink-0">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-            </svg>
-          </a>
-          {% endif %}
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-
-    {% if total > 5 %}
-    <div class="mt-4 text-center">
-      <a href="{% url 'search' %}" class="text-xs text-gray-500 hover:text-gray-300 transition-colors">
-        Ver todos los {{ total }} posts →
-      </a>
-    </div>
-    {% endif %}
-  </div>
-  {% else %}
-  <div class="text-center py-16">
-    <p class="text-gray-600 text-sm">Aún no hay posts guardados.</p>
-    <a href="{% url 'add_post' %}"
-       class="mt-3 inline-block text-[#cc785c] hover:text-[#b8694f] text-sm transition-colors">
-      Guardar el primero →
-    </a>
-  </div>
-  {% endif %}
 
 </div>
+
+<script>
+  function openForm() {
+    document.getElementById('noteTrigger').classList.add('hidden');
+    const form = document.getElementById('noteForm');
+    form.classList.remove('hidden');
+    document.getElementById('noteText').focus();
+  }
+
+  function closeForm() {
+    document.getElementById('noteForm').classList.add('hidden');
+    document.getElementById('noteTrigger').classList.remove('hidden');
+  }
+
+  // Contador de caracteres
+  const textarea = document.getElementById('noteText');
+  const charCount = document.getElementById('charCount');
+  textarea.addEventListener('input', () => {
+    const n = textarea.value.length;
+    charCount.textContent = n.toLocaleString('es') + ' caracter' + (n === 1 ? '' : 'es');
+  });
+
+  // Mostrar/ocultar fuente personalizada
+  const sourceSelect = document.getElementById('sourceSelect');
+  const customSourceWrap = document.getElementById('customSourceWrap');
+  sourceSelect.addEventListener('change', () => {
+    customSourceWrap.classList.toggle('hidden', sourceSelect.value !== 'otro');
+  });
+
+  // Si hay errores de validación, abrir el formulario directamente
+  {% if form.errors %}openForm();{% endif %}
+</script>
 {% endblock %}
