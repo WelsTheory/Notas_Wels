@@ -1,0 +1,108 @@
+{% extends 'posts/base.html' %}
+{% block title %}Agregar post{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-8">
+
+  <div class="mb-6">
+    <h1 class="text-xl font-semibold text-gray-100">Guardar post</h1>
+    <p class="text-sm text-gray-500 mt-1">Pega el texto, agrega el autor y la fuente.</p>
+  </div>
+
+  <form method="post" id="postForm">
+    {% csrf_token %}
+
+    <!-- Text area — estilo Claude AI -->
+    <div class="bg-gray-800/40 border border-gray-700/50 rounded-2xl overflow-hidden mb-4 focus-within:border-gray-500 transition-colors">
+      <div class="px-5 pt-5 pb-3">
+        {{ form.text }}
+      </div>
+      <div class="border-t border-gray-700/40 px-5 py-3 flex justify-end">
+        <span class="text-xs text-gray-600" id="charCount">0 caracteres</span>
+      </div>
+    </div>
+
+    <!-- Author + Source row -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+      <div class="bg-gray-800/40 border border-gray-700/50 rounded-xl px-4 py-3 focus-within:border-gray-500 transition-colors">
+        <label class="block text-xs text-gray-500 mb-1">Autor</label>
+        {{ form.author }}
+      </div>
+      <div class="bg-gray-800/40 border border-gray-700/50 rounded-xl px-4 py-3 focus-within:border-gray-500 transition-colors">
+        <label class="block text-xs text-gray-500 mb-1">Fuente</label>
+        {{ form.source }}
+      </div>
+    </div>
+
+    <!-- Source custom (visible solo si source = 'otro') -->
+    <div id="sourceCustomWrapper" class="mb-3 hidden">
+      <div class="bg-gray-800/40 border border-gray-700/50 rounded-xl px-4 py-3 focus-within:border-gray-500 transition-colors">
+        <label class="block text-xs text-gray-500 mb-1">Especificar fuente</label>
+        {{ form.source_custom }}
+      </div>
+    </div>
+
+    <!-- Link -->
+    <div class="bg-gray-800/40 border border-gray-700/50 rounded-xl px-4 py-3 mb-3 focus-within:border-gray-500 transition-colors">
+      <label class="block text-xs text-gray-500 mb-1">Enlace original</label>
+      {{ form.link }}
+    </div>
+
+    <!-- Tags -->
+    <div class="bg-gray-800/40 border border-gray-700/50 rounded-xl px-4 py-3 mb-6 focus-within:border-gray-500 transition-colors">
+      <label class="block text-xs text-gray-500 mb-1">Etiquetas <span class="text-gray-700">(separadas por coma)</span></label>
+      {{ form.tags_input }}
+    </div>
+
+    <!-- Errors -->
+    {% if form.errors %}
+    <div class="mb-4 bg-red-900/20 border border-red-700/40 rounded-xl px-4 py-3">
+      {% for field, errors in form.errors.items %}
+        {% for error in errors %}
+        <p class="text-xs text-red-400">{{ error }}</p>
+        {% endfor %}
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Actions -->
+    <div class="flex items-center justify-between">
+      <a href="{% url 'dashboard' %}"
+         class="text-sm text-gray-500 hover:text-gray-300 transition-colors">
+        Cancelar
+      </a>
+      <button type="submit"
+              class="bg-[#cc785c] hover:bg-[#b8694f] text-white text-sm font-medium px-6 py-2.5 rounded-xl transition-colors flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+        Guardar post
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+  const textarea = document.querySelector('textarea');
+  const charCount = document.getElementById('charCount');
+  const sourceSelect = document.getElementById('id_source');
+  const sourceCustomWrapper = document.getElementById('sourceCustomWrapper');
+
+  function updateChar() {
+    const n = textarea.value.length;
+    charCount.textContent = n.toLocaleString('es') + ' caracter' + (n === 1 ? '' : 'es');
+  }
+  textarea.addEventListener('input', updateChar);
+  updateChar();
+
+  function toggleCustomSource() {
+    if (sourceSelect.value === 'otro') {
+      sourceCustomWrapper.classList.remove('hidden');
+    } else {
+      sourceCustomWrapper.classList.add('hidden');
+    }
+  }
+  sourceSelect.addEventListener('change', toggleCustomSource);
+  toggleCustomSource();
+</script>
+{% endblock %}

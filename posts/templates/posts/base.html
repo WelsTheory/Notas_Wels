@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Mis Posts{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'claude-bg': '#1a1a1a',
+            'claude-surface': '#2a2a2a',
+            'claude-border': '#3a3a3a',
+            'claude-accent': '#cc785c',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background-color: #1a1a1a; }
+    .scrollbar-thin::-webkit-scrollbar { width: 4px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 2px; }
+    textarea { field-sizing: content; min-height: 120px; }
+    .tag-badge {
+      display: inline-flex; align-items: center;
+      background: rgba(204,120,92,0.15); color: #cc785c;
+      border: 1px solid rgba(204,120,92,0.3);
+      font-size: 0.7rem; padding: 2px 8px; border-radius: 999px;
+      font-weight: 500; letter-spacing: 0.02em;
+    }
+    .source-badge {
+      display: inline-flex; align-items: center;
+      background: rgba(255,255,255,0.07); color: #9ca3af;
+      border: 1px solid rgba(255,255,255,0.1);
+      font-size: 0.7rem; padding: 2px 10px; border-radius: 999px;
+    }
+  </style>
+</head>
+<body class="h-full text-gray-100 antialiased">
+
+  <!-- Nav -->
+  <nav class="fixed top-0 left-0 right-0 z-50 border-b border-gray-800 bg-[#1a1a1a]/95 backdrop-blur-sm">
+    <div class="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
+      <a href="{% url 'dashboard' %}" class="font-semibold text-gray-100 tracking-tight text-sm">
+        Mis Posts
+      </a>
+      <div class="flex items-center gap-1">
+        <a href="{% url 'dashboard' %}"
+           class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors
+                  {% if request.resolver_match.url_name == 'dashboard' %}bg-gray-800 text-gray-100{% else %}text-gray-400 hover:text-gray-100 hover:bg-gray-800/50{% endif %}">
+          Inicio
+        </a>
+        <a href="{% url 'add_post' %}"
+           class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors
+                  {% if request.resolver_match.url_name == 'add_post' %}bg-gray-800 text-gray-100{% else %}text-gray-400 hover:text-gray-100 hover:bg-gray-800/50{% endif %}">
+          Agregar
+        </a>
+        <a href="{% url 'random_post' %}"
+           class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors
+                  {% if request.resolver_match.url_name == 'random_post' %}bg-gray-800 text-gray-100{% else %}text-gray-400 hover:text-gray-100 hover:bg-gray-800/50{% endif %}">
+          Aleatorio
+        </a>
+        <a href="{% url 'search' %}"
+           class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors
+                  {% if request.resolver_match.url_name == 'search' %}bg-gray-800 text-gray-100{% else %}text-gray-400 hover:text-gray-100 hover:bg-gray-800/50{% endif %}">
+          Buscar
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="pt-14 min-h-full">
+    {% block content %}{% endblock %}
+  </main>
+
+</body>
+</html>

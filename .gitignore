@@ -1,0 +1,33 @@
+# Secretos — nunca subir
+.env
+
+# Claude Code
+.claude/
+
+# Base de datos — contiene tus posts personales
+db.sqlite3
+
+# Entorno virtual
+venv/
+env/
+.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Django
+*.log
+local_settings.py
+staticfiles/
+media/
+
+# Editores
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
